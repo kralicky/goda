@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/loov/goda/pkg/pkggraph"
-	"github.com/loov/goda/pkg/pkgtree"
+	"github.com/kralicky/goda/pkg/pkggraph"
+	"github.com/kralicky/goda/pkg/pkgtree"
 )
 
 type Dot struct {

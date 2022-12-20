@@ -10,14 +10,14 @@ import (
 
 	"github.com/google/subcommands"
 
-	"github.com/loov/goda/pkg/cut"
-	"github.com/loov/goda/pkg/exec"
-	"github.com/loov/goda/pkg/graph"
-	"github.com/loov/goda/pkg/list"
-	"github.com/loov/goda/pkg/pkgset"
-	"github.com/loov/goda/pkg/tree"
-	"github.com/loov/goda/pkg/weight"
-	"github.com/loov/goda/pkg/weightdiff"
+	"github.com/kralicky/goda/pkg/cut"
+	"github.com/kralicky/goda/pkg/exec"
+	"github.com/kralicky/goda/pkg/graph"
+	"github.com/kralicky/goda/pkg/list"
+	"github.com/kralicky/goda/pkg/pkgset"
+	"github.com/kralicky/goda/pkg/tree"
+	"github.com/kralicky/goda/pkg/weight"
+	"github.com/kralicky/goda/pkg/weightdiff"
 )
 
 func main() {
@@ -132,18 +132,18 @@ package expressions.
 
 # Example expressions:
 
-	github.com/loov/goda:import
-		all direct dependencies for the "github.com/loov/goda" package
+	github.com/kralicky/goda:import
+		all direct dependencies for the "github.com/kralicky/goda" package
 
-	shared(github.com/loov/goda/pkgset:all, github.com/loov/goda/templates:all)
+	shared(github.com/kralicky/goda/pkgset:all, github.com/kralicky/goda/templates:all)
 		packages directly or indirectly imported by both
-		"github.com/loov/goda/pkgset" and "github.com/loov/goda/templates"
+		"github.com/kralicky/goda/pkgset" and "github.com/kralicky/goda/templates"
 
-	github.com/loov/goda/...:all - golang.org/x/tools/...
+	github.com/kralicky/goda/...:all - golang.org/x/tools/...
 		all of goda's dependencies excluding golang.org/x/tools packages
 
-	reach(github.com/loov/goda/...:all, golang.org/x/tools/go/packages)
-		packages in github.com/loov/goda/ that use golang.org/x/tools/go/packages
+	reach(github.com/kralicky/goda/...:all, golang.org/x/tools/go/packages)
+		packages in github.com/kralicky/goda/ that use golang.org/x/tools/go/packages
 `
 }
 func (*ExprHelp) SetFlags(f *flag.FlagSet) {}

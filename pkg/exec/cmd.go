@@ -12,8 +12,8 @@ import (
 
 	"github.com/google/subcommands"
 
-	"github.com/loov/goda/pkg/memory"
-	"github.com/loov/goda/pkg/templates"
+	"github.com/kralicky/goda/pkg/memory"
+	"github.com/kralicky/goda/pkg/templates"
 )
 
 type Command struct {

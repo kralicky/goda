@@ -1,4 +1,4 @@
-module github.com/loov/goda
+module github.com/kralicky/goda
 
 go 1.17
 

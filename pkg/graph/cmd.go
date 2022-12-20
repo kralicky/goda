@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/subcommands"
 
-	"github.com/loov/goda/pkg/pkggraph"
-	"github.com/loov/goda/pkg/pkgset"
-	"github.com/loov/goda/pkg/templates"
+	"github.com/kralicky/goda/pkg/pkggraph"
+	"github.com/kralicky/goda/pkg/pkgset"
+	"github.com/kralicky/goda/pkg/templates"
 )
 
 type Command struct {

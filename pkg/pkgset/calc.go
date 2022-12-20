@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/loov/goda/pkg/pkgset/ast"
+	"github.com/kralicky/goda/pkg/pkgset/ast"
 )
 
 // Parse converts the expression represented by the expr strings into an AST
