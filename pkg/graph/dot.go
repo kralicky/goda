@@ -12,22 +12,22 @@ import (
 )
 
 type Dot struct {
-	out io.Writer
-	err io.Writer
+	Out io.Writer
+	Err io.Writer
 
-	docs     string
-	clusters bool
-	nocolor  bool
-	shortID  bool
+	Docs     string
+	Clusters bool
+	NoColor  bool
+	ShortID  bool
 
-	label *template.Template
+	Tmpl *template.Template
 }
 
 func (ctx *Dot) Label(p *pkggraph.Node) string {
 	var labelText strings.Builder
-	err := ctx.label.Execute(&labelText, p)
+	err := ctx.Tmpl.Execute(&labelText, p)
 	if err != nil {
-		fmt.Fprintf(ctx.err, "template error: %v\n", err)
+		fmt.Fprintf(ctx.Err, "template error: %v\n", err)
 	}
 	return labelText.String()
 }
@@ -56,53 +56,53 @@ func (ctx *Dot) TreePackageLabel(tp *pkgtree.Package, parentPrinted bool) string
 		suffix = strings.TrimPrefix(tp.Path(), parentPath+"/")
 	}
 
-	if suffix != "" && ctx.shortID {
+	if suffix != "" && ctx.ShortID {
 		defer func(previousID string) { tp.GraphNode.ID = previousID }(tp.GraphNode.ID)
 		tp.GraphNode.ID = suffix
 	}
 
 	var labelText strings.Builder
-	err := ctx.label.Execute(&labelText, tp.GraphNode)
+	err := ctx.Tmpl.Execute(&labelText, tp.GraphNode)
 	if err != nil {
-		fmt.Fprintf(ctx.err, "template error: %v\n", err)
+		fmt.Fprintf(ctx.Err, "template error: %v\n", err)
 	}
 	return labelText.String()
 }
 
 func (ctx *Dot) RepoRef(repo *pkgtree.Repo) string {
-	return fmt.Sprintf(`href=%q`, ctx.docs+repo.Path())
+	return fmt.Sprintf(`href=%q`, ctx.Docs+repo.Path())
 }
 
 func (ctx *Dot) ModuleRef(mod *pkgtree.Module) string {
-	return fmt.Sprintf(`href=%q`, ctx.docs+mod.Path()+"@"+mod.Mod.Version)
+	return fmt.Sprintf(`href=%q`, ctx.Docs+mod.Path()+"@"+mod.Mod.Version)
 }
 
 func (ctx *Dot) TreePackageRef(tp *pkgtree.Package) string {
-	return fmt.Sprintf(`href=%q`, ctx.docs+tp.Path())
+	return fmt.Sprintf(`href=%q`, ctx.Docs+tp.Path())
 }
 
 func (ctx *Dot) Ref(p *pkggraph.Node) string {
-	return fmt.Sprintf(`href=%q`, ctx.docs+p.ID)
+	return fmt.Sprintf(`href=%q`, ctx.Docs+p.ID)
 }
 
 func (ctx *Dot) writeGraphProperties() {
-	if ctx.nocolor {
-		fmt.Fprintf(ctx.out, "    node [fontsize=10 shape=rectangle target=\"_graphviz\"];\n")
-		fmt.Fprintf(ctx.out, "    edge [tailport=e];\n")
+	if ctx.NoColor {
+		fmt.Fprintf(ctx.Out, "    node [fontsize=10 shape=rectangle target=\"_graphviz\"];\n")
+		fmt.Fprintf(ctx.Out, "    edge [tailport=e];\n")
 	} else {
-		fmt.Fprintf(ctx.out, "    node [penwidth=2 fontsize=10 shape=rectangle target=\"_graphviz\"];\n")
-		fmt.Fprintf(ctx.out, "    edge [tailport=e penwidth=2];\n")
+		fmt.Fprintf(ctx.Out, "    node [penwidth=2 fontsize=10 shape=rectangle target=\"_graphviz\"];\n")
+		fmt.Fprintf(ctx.Out, "    edge [tailport=e penwidth=2];\n")
 	}
-	fmt.Fprintf(ctx.out, "    compound=true;\n")
+	fmt.Fprintf(ctx.Out, "    compound=true;\n")
 
-	fmt.Fprintf(ctx.out, "    rankdir=LR;\n")
-	fmt.Fprintf(ctx.out, "    newrank=true;\n")
-	fmt.Fprintf(ctx.out, "    ranksep=\"1.5\";\n")
-	fmt.Fprintf(ctx.out, "    quantum=\"0.5\";\n")
+	fmt.Fprintf(ctx.Out, "    rankdir=LR;\n")
+	fmt.Fprintf(ctx.Out, "    newrank=true;\n")
+	fmt.Fprintf(ctx.Out, "    ranksep=\"1.5\";\n")
+	fmt.Fprintf(ctx.Out, "    quantum=\"0.5\";\n")
 }
 
 func (ctx *Dot) Write(graph *pkggraph.Graph) error {
-	if ctx.clusters {
+	if ctx.Clusters {
 		return ctx.WriteClusters(graph)
 	} else {
 		return ctx.WriteRegular(graph)
@@ -110,17 +110,17 @@ func (ctx *Dot) Write(graph *pkggraph.Graph) error {
 }
 
 func (ctx *Dot) WriteRegular(graph *pkggraph.Graph) error {
-	fmt.Fprintf(ctx.out, "digraph G {\n")
+	fmt.Fprintf(ctx.Out, "digraph G {\n")
 	ctx.writeGraphProperties()
-	defer fmt.Fprintf(ctx.out, "}\n")
+	defer fmt.Fprintf(ctx.Out, "}\n")
 
 	for _, n := range graph.Sorted {
-		fmt.Fprintf(ctx.out, "    %v [label=\"%v\" %v %v];\n", pkgID(n), ctx.Label(n), ctx.Ref(n), ctx.colorOf(n))
+		fmt.Fprintf(ctx.Out, "    %v [label=\"%v\" %v %v];\n", PkgID(n), ctx.Label(n), ctx.Ref(n), ctx.colorOf(n))
 	}
 
 	for _, src := range graph.Sorted {
 		for _, dst := range src.ImportsNodes {
-			fmt.Fprintf(ctx.out, "    %v -> %v [%v];\n", pkgID(src), pkgID(dst), ctx.colorOf(dst))
+			fmt.Fprintf(ctx.Out, "    %v -> %v [%v];\n", PkgID(src), PkgID(dst), ctx.colorOf(dst))
 		}
 	}
 
@@ -135,9 +135,9 @@ func (ctx *Dot) WriteClusters(graph *pkggraph.Graph) error {
 	lookup := root.LookupTable()
 	isCluster := map[*pkggraph.Node]bool{}
 
-	fmt.Fprintf(ctx.out, "digraph G {\n")
+	fmt.Fprintf(ctx.Out, "digraph G {\n")
 	ctx.writeGraphProperties()
-	defer fmt.Fprintf(ctx.out, "}\n")
+	defer fmt.Fprintf(ctx.Out, "}\n")
 
 	printed := make(map[pkgtree.Node]bool)
 
@@ -149,20 +149,20 @@ func (ctx *Dot) WriteClusters(graph *pkggraph.Graph) error {
 				break
 			}
 			printed[tn] = true
-			fmt.Fprintf(ctx.out, "subgraph %q {\n", "cluster_"+tn.Path())
-			fmt.Fprintf(ctx.out, "    label=\"%v\"\n", tn.Path())
-			fmt.Fprintf(ctx.out, "    tooltip=\"%v\"\n", tn.Path())
-			fmt.Fprintf(ctx.out, "    %v\n", ctx.RepoRef(tn))
-			defer fmt.Fprintf(ctx.out, "}\n")
+			fmt.Fprintf(ctx.Out, "subgraph %q {\n", "cluster_"+tn.Path())
+			fmt.Fprintf(ctx.Out, "    label=\"%v\"\n", tn.Path())
+			fmt.Fprintf(ctx.Out, "    tooltip=\"%v\"\n", tn.Path())
+			fmt.Fprintf(ctx.Out, "    %v\n", ctx.RepoRef(tn))
+			defer fmt.Fprintf(ctx.Out, "}\n")
 
 		case *pkgtree.Module:
 			printed[tn] = true
 			label := ctx.ModuleLabel(tn)
-			fmt.Fprintf(ctx.out, "subgraph %q {\n", "cluster_"+tn.Path())
-			fmt.Fprintf(ctx.out, "    label=\"%v\"\n", label)
-			fmt.Fprintf(ctx.out, "    tooltip=\"%v\"\n", label)
-			fmt.Fprintf(ctx.out, "    %v\n", ctx.ModuleRef(tn))
-			defer fmt.Fprintf(ctx.out, "}\n")
+			fmt.Fprintf(ctx.Out, "subgraph %q {\n", "cluster_"+tn.Path())
+			fmt.Fprintf(ctx.Out, "    label=\"%v\"\n", label)
+			fmt.Fprintf(ctx.Out, "    tooltip=\"%v\"\n", label)
+			fmt.Fprintf(ctx.Out, "    %v\n", ctx.ModuleRef(tn))
+			defer fmt.Fprintf(ctx.Out, "}\n")
 
 		case *pkgtree.Package:
 			printed[tn] = true
@@ -173,11 +173,11 @@ func (ctx *Dot) WriteClusters(graph *pkggraph.Graph) error {
 				if tn.OnlyChild() {
 					shape = "point"
 				}
-				fmt.Fprintf(ctx.out, "    %v [label=\"\" tooltip=\"%v\" shape=%v %v rank=0];\n", pkgID(gn), tn.Path(), shape, ctx.colorOf(gn))
+				fmt.Fprintf(ctx.Out, "    %v [label=\"\" tooltip=\"%v\" shape=%v %v rank=0];\n", PkgID(gn), tn.Path(), shape, ctx.colorOf(gn))
 			} else {
 				label := ctx.TreePackageLabel(tn, printed[tn.Parent])
 				href := ctx.TreePackageRef(tn)
-				fmt.Fprintf(ctx.out, "    %v [label=\"%v\" tooltip=\"%v\" %v %v];\n", pkgID(gn), label, tn.Path(), href, ctx.colorOf(gn))
+				fmt.Fprintf(ctx.Out, "    %v [label=\"%v\" tooltip=\"%v\" %v %v];\n", PkgID(gn), label, tn.Path(), href, ctx.colorOf(gn))
 			}
 		}
 
@@ -188,14 +188,14 @@ func (ctx *Dot) WriteClusters(graph *pkggraph.Graph) error {
 	for _, src := range graph.Sorted {
 		srctree := lookup[src]
 		for _, dst := range src.ImportsNodes {
-			dstID := pkgID(dst)
+			dstID := PkgID(dst)
 			dstTree := lookup[dst]
 			tooltip := src.ID + " -> " + dst.ID
 
 			if isCluster[dst] && srctree.Parent != dstTree {
-				fmt.Fprintf(ctx.out, "    %v -> %v [tooltip=\"%v\" lhead=%q %v];\n", pkgID(src), dstID, tooltip, "cluster_"+dst.ID, ctx.colorOf(dst))
+				fmt.Fprintf(ctx.Out, "    %v -> %v [tooltip=\"%v\" lhead=%q %v];\n", PkgID(src), dstID, tooltip, "cluster_"+dst.ID, ctx.colorOf(dst))
 			} else {
-				fmt.Fprintf(ctx.out, "    %v -> %v [tooltip=\"%v\" %v];\n", pkgID(src), dstID, tooltip, ctx.colorOf(dst))
+				fmt.Fprintf(ctx.Out, "    %v -> %v [tooltip=\"%v\" %v];\n", PkgID(src), dstID, tooltip, ctx.colorOf(dst))
 			}
 		}
 	}
@@ -204,7 +204,7 @@ func (ctx *Dot) WriteClusters(graph *pkggraph.Graph) error {
 }
 
 func (ctx *Dot) colorOf(p *pkggraph.Node) string {
-	if ctx.nocolor {
+	if ctx.NoColor {
 		return ""
 	}
 

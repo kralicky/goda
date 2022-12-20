@@ -5,11 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/google/subcommands"
 
+	"github.com/kralicky/goda/pkg/graph"
 	"github.com/kralicky/goda/pkg/pkggraph"
 	"github.com/kralicky/goda/pkg/pkgset"
 	"github.com/kralicky/goda/pkg/templates"
@@ -82,41 +82,41 @@ func (cmd *Command) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface
 		return subcommands.ExitFailure
 	}
 
-	var format Format
+	var format graph.Format
 	switch strings.ToLower(cmd.outputType) {
 	case "dot":
-		format = &Dot{
-			out:      os.Stdout,
-			err:      os.Stderr,
-			docs:     cmd.docs,
-			clusters: cmd.clusters,
-			nocolor:  cmd.nocolor,
-			shortID:  cmd.shortID,
-			label:    label,
+		format = &graph.Dot{
+			Out:      os.Stdout,
+			Err:      os.Stderr,
+			Docs:     cmd.docs,
+			Clusters: cmd.clusters,
+			NoColor:  cmd.nocolor,
+			ShortID:  cmd.shortID,
+			Tmpl:     label,
 		}
 	case "digraph":
-		format = &Digraph{
-			out:   os.Stdout,
-			err:   os.Stderr,
-			label: label,
+		format = &graph.Digraph{
+			Out:  os.Stdout,
+			Err:  os.Stderr,
+			Tmpl: label,
 		}
 	case "tgf":
-		format = &TGF{
-			out:   os.Stdout,
-			err:   os.Stderr,
-			label: label,
+		format = &graph.TGF{
+			Out:  os.Stdout,
+			Err:  os.Stderr,
+			Tmpl: label,
 		}
 	case "edges":
-		format = &Edges{
-			out:   os.Stdout,
-			err:   os.Stderr,
-			label: label,
+		format = &graph.Edges{
+			Out:  os.Stdout,
+			Err:  os.Stderr,
+			Tmpl: label,
 		}
 	case "graphml":
-		format = &GraphML{
-			out:   os.Stdout,
-			err:   os.Stderr,
-			label: label,
+		format = &graph.GraphML{
+			Out:  os.Stdout,
+			Err:  os.Stderr,
+			Tmpl: label,
 		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown output type %q\n", cmd.outputType)
@@ -143,14 +143,4 @@ func (cmd *Command) Execute(ctx context.Context, f *flag.FlagSet, _ ...interface
 	}
 
 	return subcommands.ExitSuccess
-}
-
-type Format interface {
-	Write(*pkggraph.Graph) error
-}
-
-func pkgID(p *pkggraph.Node) string {
-	// Go quoting rules are similar enough to dot quoting.
-	// At least enough similar to quote a Go import path.
-	return strconv.Quote(p.ID)
 }

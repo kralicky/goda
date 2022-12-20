@@ -13,16 +13,16 @@ import (
 )
 
 type GraphML struct {
-	out   io.Writer
-	err   io.Writer
-	label *template.Template
+	Out  io.Writer
+	Err  io.Writer
+	Tmpl *template.Template
 }
 
 func (ctx *GraphML) Label(p *pkggraph.Node) string {
 	var labelText strings.Builder
-	err := ctx.label.Execute(&labelText, p)
+	err := ctx.Tmpl.Execute(&labelText, p)
 	if err != nil {
-		fmt.Fprintf(ctx.err, "template error: %v\n", err)
+		fmt.Fprintf(ctx.Err, "template error: %v\n", err)
 	}
 	return labelText.String()
 }
@@ -37,11 +37,11 @@ func (ctx *GraphML) Write(graph *pkggraph.Graph) error {
 		{For: "node", ID: "ynodelabel", YFilesType: "nodegraphics"},
 	}
 
-	enc := xml.NewEncoder(ctx.out)
+	enc := xml.NewEncoder(ctx.Out)
 	enc.Indent("", "\t")
 	err := enc.Encode(file)
 	if err != nil {
-		fmt.Fprintf(ctx.err, "failed to output: %v\n", err)
+		fmt.Fprintf(ctx.Err, "failed to output: %v\n", err)
 	}
 
 	return nil

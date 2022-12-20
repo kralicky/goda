@@ -10,14 +10,14 @@ import (
 
 	"github.com/google/subcommands"
 
-	"github.com/kralicky/goda/pkg/cut"
-	"github.com/kralicky/goda/pkg/exec"
-	"github.com/kralicky/goda/pkg/graph"
-	"github.com/kralicky/goda/pkg/list"
+	"github.com/kralicky/goda/cmd/goda/commands/cut"
+	"github.com/kralicky/goda/cmd/goda/commands/exec"
+	"github.com/kralicky/goda/cmd/goda/commands/graph"
+	"github.com/kralicky/goda/cmd/goda/commands/list"
+	"github.com/kralicky/goda/cmd/goda/commands/tree"
+	"github.com/kralicky/goda/cmd/goda/commands/weight"
+	"github.com/kralicky/goda/cmd/goda/commands/weightdiff"
 	"github.com/kralicky/goda/pkg/pkgset"
-	"github.com/kralicky/goda/pkg/tree"
-	"github.com/kralicky/goda/pkg/weight"
-	"github.com/kralicky/goda/pkg/weightdiff"
 )
 
 func main() {

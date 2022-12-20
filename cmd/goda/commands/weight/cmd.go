@@ -12,7 +12,7 @@ import (
 	"github.com/google/subcommands"
 
 	"github.com/kralicky/goda/pkg/memory"
-	"github.com/kralicky/goda/pkg/weight/nm"
+	"github.com/kralicky/goda/pkg/nm"
 )
 
 type Command struct {
