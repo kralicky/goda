@@ -72,8 +72,10 @@ func Calc(parentContext context.Context, expr []string) (Set, error) {
 		case ast.Func:
 			if e.IsContext() {
 				subctx := ctx.Clone()
-				key, value := KeyValue(e.Name)
-				subctx.Set(key, value)
+				for _, kv := range Tags(e.Name) {
+					key, value := KeyValue(kv)
+					subctx.Set(key, value)
+				}
 				if len(e.Args) != 1 {
 					return nil, fmt.Errorf("expected 1 argument found %d", len(e.Args))
 				}
@@ -173,6 +175,13 @@ func Calc(parentContext context.Context, expr []string) (Set, error) {
 					return nil, err
 				}
 				return combine(set, DirectDependencies(set)), nil
+
+			case "large":
+				set, err := eval(ctx, e.Expr)
+				if err != nil {
+					return nil, err
+				}
+				return combine(set, Large(set)), nil
 
 			case "source":
 				set, err := eval(ctx, e.Expr)

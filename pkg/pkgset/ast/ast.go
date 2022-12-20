@@ -50,7 +50,8 @@ func (f Func) Tree(ident int) string {
 }
 
 func (f Func) IsContext() bool {
-	return strings.IndexByte(f.Name, '=') >= 0
+	return strings.IndexByte(f.Name, '=') >= 0 ||
+		strings.IndexByte(f.Name, '|') >= 0
 }
 
 func Parse(tokens []Token) (Expr, error) {

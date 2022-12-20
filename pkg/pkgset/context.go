@@ -136,3 +136,17 @@ func KeyValue(s string) (string, string) {
 	}
 	return s[:p], s[p+1:]
 }
+
+// parses a '|' separated list of tags, which may either be values or key=value pairs.
+// values are treated as key=value pairs with the value set to true.
+func Tags(s string) []string {
+	tags := []string{}
+	for _, tag := range strings.Split(s, "|") {
+		if strings.Contains(tag, "=") {
+			tags = append(tags, tag)
+			continue
+		}
+		tags = append(tags, tag+"=true")
+	}
+	return tags
+}

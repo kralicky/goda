@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/kralicky/goda/pkg/stat"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -278,6 +279,21 @@ func DirectDependencies(a Set) Set {
 				continue
 			}
 			rs[dep.ID] = dep
+		}
+	}
+	return rs
+}
+
+func Large(a Set) Set {
+	rs := map[string]*packages.Package{}
+	for _, p := range a {
+		s, errs := stat.Package(p)
+		if len(errs) > 0 {
+			continue
+		}
+		// > 1MB
+		if s.Go.Size >= 1024*1024 {
+			rs[p.ID] = p
 		}
 	}
 	return rs

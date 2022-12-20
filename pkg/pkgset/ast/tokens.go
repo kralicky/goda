@@ -102,7 +102,7 @@ func isPrefixOp(p byte) bool {
 func isIdent(p byte) bool {
 	return (p == '.') || (p == '@') || (p == '_') || (p == '-') || (p == '/') ||
 		('a' <= p && p <= 'z') || ('A' <= p && p <= 'Z') || ('0' <= p && p <= '9') ||
-		(p == '=') // for build tags
+		(p == '=') || (p == '|') // for build tags
 }
 
 func parseIdent(start int, s string) (int, string) {
